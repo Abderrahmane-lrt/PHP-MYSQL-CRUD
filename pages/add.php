@@ -61,7 +61,7 @@ if (isset($_POST['add'])) {
     <div class="container d-flex pt-5 justify-content-between vh-100">
         <div class="card  w-50 m-auto ml-5 mt-5">
             <div class="card-header bg-primary">
-                <h2 class="text-white fw-bold ms-4">Add User</h2>
+                <h2 class="text-white fw-bold ms-4">Add user</h2>
             </div>
             <form method="post">
                 <div class="card-body">
