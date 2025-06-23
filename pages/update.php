@@ -11,12 +11,22 @@ if (isset($_POST['update'])) {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $phone = $_POST['phone'];
-    if (!empty($name) && !empty($email) && !empty($phone)) {
-            $stmt = $con->prepare("UPDATE  workers SET name = ?, email  = ?, phone = ? WHERE worker_id = ?");
-            $stmt->execute([$name, $email, $phone, $id]);
-            header("Location: index.php");
-        }
-    else {
+    $old_photo = $_POST['old_photo'];
+    $photo = $_FILES['photo'];
+    $img_name = $photo['name'];
+    $tmp_name = $photo['tmp_name'];
+    $path_img = '../img/'. $img_name;
+    move_uploaded_file($tmp_name, $path_img);
+    if (file_exists('../img'. $old_photo)){
+        unlink('../img'. $old_photo);
+    }
+
+
+    if (!empty($name) && !empty($email) && !empty($phone) && !empty($path_img) ) {
+        $stmt = $con->prepare("UPDATE  workers SET name = ?, email  = ?, phone = ?, photo = ?  WHERE worker_id = ?");
+        $stmt->execute([$name, $email, $phone, $path_img, $id]);
+        header("Location: index.php");
+    } else {
         echo  "<div class='alert alert-danger alert-dismissible fade show w-50 mb-5 position-absolute bottom-0 end-0' role='alert'>
         <button
             type='button'
@@ -51,10 +61,14 @@ if (isset($_POST['update'])) {
 <body>
     <div class="container d-flex pt-5 justify-content-between vh-100">
         <div class="card  w-50 m-auto ml-5 mt-5">
-            <div class="card-header bg-success">
-                <h2 class="text-white fw-bold ms-4">Edit User</h2>
-            </div>
-            <form method="post">
+
+            <form method="post" enctype="multipart/form-data">
+                <div >
+                    <input type="file"  name="photo" hidden id="photo_id" >
+                    <label for="photo_id" style="cursor: pointer;" class="d-flex">
+                        <img src="<?= $worker['photo'] ?>" alt="<?= $worker['photo'] ?>" name="old_photo" class="rounded-circle" style="height: 200px; width: 40%; margin:0 auto;">
+                    </label>
+                </div>
                 <div class="card-body">
                     <input type="text" value="<?= $worker['name'] ?>" name="name" placeholder="Name" class="form-control my-3">
                     <input type="text" value="<?= $worker['email'] ?>" name="email" placeholder="Email" class="form-control my-3">

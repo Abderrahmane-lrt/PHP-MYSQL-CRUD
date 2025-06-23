@@ -8,6 +8,12 @@ if (isset($_POST['add'])) {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $phone = $_POST['phone'];
+
+    $photo = $_FILES['photo'];
+    $img_name = $photo['name'];
+    $img_temp = $photo['tmp_name'];
+    $path_img = '../img/'. $img_name;
+
     if (!empty($name) && !empty($email) && !empty($phone)) {
         // fetch all records from table workers to check if this user already in database  
         $stmt = $con->prepare("SELECT * FROM workers WHERE email = ?");
@@ -19,13 +25,14 @@ if (isset($_POST['add'])) {
             class='btn-close'
             data-bs-dismiss='alert'
             aria-label='Close'
-        ></button>a
-        <strong>erreur!</strong> User Already exists!!
+        ></button>
+        <strong>error!</strong> User Already exists!!
         </div>";
         } else {
-            $stmt = $con->prepare("INSERT INTO workers VALUES (NULL, ?, ?, ?)");
-            $stmt->execute([$name, $email, $phone]);
-            header("Location: index.php");
+            if (move_uploaded_file($img_temp, $path_img))
+                $stmt = $con->prepare("INSERT INTO workers VALUES (NULL, ?, ?, ?, ?)");
+                $stmt->execute([$name, $email, $phone, $path_img]);
+                header("Location: index.php");
         }
     } else {
         echo  "<div class='alert alert-danger alert-dismissible fade show w-50 mb-5 position-absolute bottom-0 end-0' role='alert'>
@@ -36,7 +43,7 @@ if (isset($_POST['add'])) {
             aria-label='Close'
         ></button>
     
-        <strong>erreur!</strong> Tous les champs sont obligatoires
+        <strong>error!</strong> Tous les champs sont obligatoires
     </div>";
     }
 }
@@ -63,11 +70,12 @@ if (isset($_POST['add'])) {
             <div class="card-header bg-primary">
                 <h2 class="text-white fw-bold ms-4">Add user</h2>
             </div>
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 <div class="card-body">
                     <input type="text" name="name" placeholder="Name" class="form-control my-3">
                     <input type="text" name="email" placeholder="Email" class="form-control my-3">
-                    <input type="text" name="phone" placeholder="Phone" class="form-control ">
+                    <input type="text" name="phone" placeholder="Phone" class="form-control my-3">
+                    <input type="file" name="photo" class="form-control">
                 </div>
                 <div class="card-footer">
                     <button class="btn bg-primary w-100 text-white fw-bold" name="add">Save</button>
